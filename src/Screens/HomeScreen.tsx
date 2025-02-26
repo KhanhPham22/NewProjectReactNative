@@ -7,6 +7,7 @@ import {
   Alert,
   FlatList,
   Image,
+  TouchableOpacity, // Thêm TouchableOpacity
 } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -30,10 +31,10 @@ const HomeScreen = ({ navigation, route }: TabsStackScreenProps<"Home">) => {
   };
 
   const sliderImages = [
-    "https://intphcm.com/data/upload/dung-luong-banner-thoi-trang.jpg",
-    "https://intphcm.com/data/upload/banner-thoi-trang-nam.jpg",
-    "https://png.pngtree.com/template/20220330/ourmid/pngtree-yellow-background-autumn-and-winter-new-product-promotion-poster-banner-men-image_900086.jpg",
-    "https://thietke6d.com/wp-content/uploads/2021/03/Mau-banner-quang-cao-dep-1.png",
+    "https://drive.google.com/uc?export=download&id=1QsdLY9t9-9bx98pccuqFMRP8FlIB79pt",
+    "https://drive.google.com/uc?export=download&id=1E5uQPeDGr-kgQSV8xH2arQzLYlsePaz2",
+    "https://drive.google.com/uc?export=download&id=1Q2BRub80vZU85w_WpPwidhY77hOI4COl",
+    "https://drive.google.com/uc?export=download&id=1s3tr08AbEU7rn73QvD-03MkkELIWjTdN",
   ];
 
   const [getCategory, setGetCategory] = useState<ProductListParams[]>([]);
@@ -192,6 +193,8 @@ const HomeScreen = ({ navigation, route }: TabsStackScreenProps<"Home">) => {
             )}
           </ScrollView>
         </View>
+
+        {/* Featured Products */}
         <View
           style={{
             backgroundColor: "#fff",
@@ -210,7 +213,11 @@ const HomeScreen = ({ navigation, route }: TabsStackScreenProps<"Home">) => {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {getFeaturedProducts.length > 0 ? (
               getFeaturedProducts.map((item, index) => (
-                <View key={index} style={{ alignItems: "center", margin: 5 }}>
+                <TouchableOpacity
+                  key={index}
+                  style={{ alignItems: "center", margin: 5 }}
+                  onPress={() => navigation.navigate("ProductDetails", item)} // Thêm hàm onPress để điều hướng
+                >
                   <Image
                     source={{ uri: item.images[0] }} // Hiển thị hình ảnh sản phẩm nổi bật
                     style={{ width: 100, height: 100, borderRadius: 10 }}
@@ -219,7 +226,7 @@ const HomeScreen = ({ navigation, route }: TabsStackScreenProps<"Home">) => {
                   <Text style={{ textAlign: "center", marginTop: 5 }}>
                     {item.name}
                   </Text>
-                </View>
+                </TouchableOpacity>
               ))
             ) : (
               <Text style={{ padding: 10 }}>Không có sản phẩm nổi bật nào</Text>
