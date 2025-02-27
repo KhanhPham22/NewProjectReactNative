@@ -3,7 +3,10 @@ import React from 'react';
 import { RootStackParams, RootStackScreenProps } from '../Navigation/RootNavigation';
 import { AntDesign, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { HeadersComponent } from '../Components/HeaderComponents/HeaderComponent';
-
+import {useDispatch, useSelector} from 'react-redux';
+import { CartState } from '../TypesCheck/ProductCartTypes';
+import { ProductListParams } from '../TypesCheck/HomeProps';
+import { addToCart } from '../Redux/CartReducer';
 // Mở rộng kiểu TextStyle nếu cần
 declare module 'react-native' {
   interface TextStyle {
@@ -18,7 +21,15 @@ const ProductDetails = ({ navigation, route }: RootStackScreenProps<"ProductDeta
   const { _id, images, name, price, oldPrice, inStock, color, size, description, quantity } = route.params;
 
   const gotoCartScreen = () => {
-    navigation.navigate("Cart");
+    if (cart.length === 0) {
+      setMessage("Cart is empty. Please add products to cart.");
+      setDisplayMessage(true);
+      setTimeout(() => {
+        setDisplayMessage(false);
+      }, 3000);
+    } else {
+      navigation.navigate("TabsStack", { screen: "Cart" });
+    }
   };
 
   const gotoPreviousScreen = () => {
@@ -29,6 +40,39 @@ const ProductDetails = ({ navigation, route }: RootStackScreenProps<"ProductDeta
       console.log("Không thể quay lại, chuyển về trang Onboarding.");
       navigation.navigate("OnboardingScreen"); // Điều hướng fallback nếu không quay lại được
     }
+  };
+
+  const cart = useSelector((state: CartState) => state.cart.cart);
+  const dispatch = useDispatch();
+  const [addedToCart, setAddedToCart] = React.useState(false);
+  const [message, setMessage] = React.useState("");
+  const [displayMessage, setDisplayMessage] = React.useState<boolean>(false);
+
+  const addItemToCart = (productItemObj: ProductListParams) => {
+      if (productItemObj.quantity < 0) {
+          setMessage("Product is out of stock.");
+          setDisplayMessage(true);
+          setTimeout(() => {
+              setDisplayMessage(false);
+          }, 3000);
+      } else {
+          const findItem = cart.find((product) => product._id === _id);
+          if (findItem) {
+              setMessage("Product is already in cart.");
+              setDisplayMessage(true);
+              setTimeout(() => {
+                  setDisplayMessage(false);
+              }, 3000);
+          } else {
+              setAddedToCart(!addedToCart);
+              dispatch(addToCart(productItemObj));
+              setMessage("Product added to cart successfully.");
+              setDisplayMessage(true);
+              setTimeout(() => {
+                  setDisplayMessage(false);
+              }, 3000);
+          }
+      }
   };
 
   // Hàm rút gọn description nếu quá dài

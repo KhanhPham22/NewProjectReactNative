@@ -3,7 +3,7 @@ export interface ProductListParams{
     images: [string];
     name: string;
     price: number;
-    quantity: number;
+    quantity?: number;
     inStock?: boolean
     isFeatured?: boolean
     category?: string;

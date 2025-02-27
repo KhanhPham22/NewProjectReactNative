@@ -4,15 +4,16 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  Alert,
   FlatList,
   Image,
-  TouchableOpacity, // Thêm TouchableOpacity
+  TouchableOpacity,
 } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
-import { TabsStackScreenProps } from "../Navigation/TabsNavigation";
+import { TabsStackScreenProps } from "../Navigation/TabsNavigation"; // Assuming this imports TabsStackParams
+
+import { RootStackParams } from "../Navigation/RootNavigation"; // Adjust path as needed
 import { HeadersComponent } from "../Components/HeaderComponents/HeaderComponent";
 import ImageSlider from "../Components/HomeSreenComponents/ImageSlider";
 import { ProductListParams } from "../TypesCheck/HomeProps";
@@ -22,12 +23,36 @@ import {
   fetchProductsByCatID,
   fetchFeaturedProducts,
 } from "../MiddleWares/HomeMiddleWare";
+import { useSelector } from "react-redux"; // Fixed typo
+import { CartState } from "../TypesCheck/ProductCartTypes";
+import DisplayMessage from "../Components/HeaderComponents/DisplayMessage";
 
-type Props = {};
+// Combine navigation props for both stacks
+type HomeScreenProps = TabsStackScreenProps<"Home"> & TabsStackScreenProps<"Home">;
 
-const HomeScreen = ({ navigation, route }: TabsStackScreenProps<"Home">) => {
+const HomeScreen = ({ navigation }: HomeScreenProps) => {
+  const cart = useSelector((state: CartState) => state.cart.cart);
+
   const gotoCartScreen = () => {
-    navigation.navigate("Cart");
+    if (cart.length === 0) {
+      setMessage("Cart is empty. Please add products to cart.");
+      setDisplayMessage(true);
+      setTimeout(() => {
+        setDisplayMessage(false);
+      }, 3000);
+    } else {
+      navigation.navigate("Cart"); // Navigate to root stack's "Cart"
+    }
+  };
+
+  const goToPreviousScreen = () => {
+    if (navigation.canGoBack()) {
+      console.log("Chuyển về trang trước.");
+      navigation.goBack();
+    } else {
+      console.log("Không thể quay lại, ở lại trang Home.");
+      // No navigation needed since we're already on Home
+    }
   };
 
   const sliderImages = [
@@ -37,53 +62,19 @@ const HomeScreen = ({ navigation, route }: TabsStackScreenProps<"Home">) => {
     "https://drive.google.com/uc?export=download&id=1s3tr08AbEU7rn73QvD-03MkkELIWjTdN",
   ];
 
+  const [message, setMessage] = useState("");
+  const [displayMessage, setDisplayMessage] = useState<boolean>(false);
   const [getCategory, setGetCategory] = useState<ProductListParams[]>([]);
   const [activeCat, setActiveCat] = useState<string>("");
-  const [getProductByCatID, setGetProductsByCatID] = useState<
-    ProductListParams[]
-  >([]);
-  const [getFeaturedProducts, setGetFeaturedProducts] = useState<
-    ProductListParams[]
-  >([]);
-
-  useEffect(() => {
-    if (activeCat) {
-      fetchFeaturedProducts({
-        setGetFeaturedProducts,
-        catID: activeCat, // Ensure catID is passed
-      });
-    }
-  }, [activeCat]);
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchCategories({ setGetCategory });
-
-      // Ensure you pass the activeCat as catID
-      if (activeCat) {
-        fetchFeaturedProducts({
-          setGetFeaturedProducts,
-          catID: activeCat, // Pass the activeCat as catID
-        });
-      }
-
-      if (activeCat) {
-        fetchProductsByCatID({ setGetProductsByCatID, catID: activeCat });
-      }
-    }, [activeCat])
-  );
-
-  useEffect(() => {
-    if (activeCat) {
-      fetchProductsByCatID({ setGetProductsByCatID, catID: activeCat });
-    }
-  }, [activeCat]);
+  const [getProductByCatID, setGetProductsByCatID] = useState<ProductListParams[]>([]);
+  const [getFeaturedProducts, setGetFeaturedProducts] = useState<ProductListParams[]>([]);
 
   useFocusEffect(
     useCallback(() => {
       fetchCategories({ setGetCategory });
       if (activeCat) {
         fetchProductsByCatID({ setGetProductsByCatID, catID: activeCat });
+        fetchFeaturedProducts({ setGetFeaturedProducts, catID: activeCat });
       }
     }, [activeCat])
   );
@@ -93,9 +84,15 @@ const HomeScreen = ({ navigation, route }: TabsStackScreenProps<"Home">) => {
       style={{
         paddingTop: Platform.OS === "android" ? 40 : 0,
         flex: 1,
-        backgroundColor: "black",
+        backgroundColor: "white",
       }}
     >
+      {displayMessage && (
+        <DisplayMessage
+          message={message}
+          visible={() => setDisplayMessage(!displayMessage)}
+        />
+      )}
       <HeadersComponent gotoCartScreen={gotoCartScreen} />
 
       {/* Slider */}
@@ -145,11 +142,11 @@ const HomeScreen = ({ navigation, route }: TabsStackScreenProps<"Home">) => {
               catProps={{
                 activeCat: activeCat,
                 onPress: () => {
-                  setActiveCat(item._id); // Cập nhật danh mục đang hoạt động
+                  setActiveCat(item._id);
                   fetchProductsByCatID({
                     setGetProductsByCatID,
                     catID: item._id,
-                  }); // Fetch sản phẩm cho danh mục này
+                  });
                 },
               }}
             />
@@ -179,7 +176,7 @@ const HomeScreen = ({ navigation, route }: TabsStackScreenProps<"Home">) => {
               getProductByCatID.map((item, index) => (
                 <View key={index} style={{ alignItems: "center", margin: 5 }}>
                   <Image
-                    source={{ uri: item.images[0] }} // Hiển thị hình ảnh sản phẩm
+                    source={{ uri: item.images[0] }}
                     style={{ width: 100, height: 100, borderRadius: 10 }}
                     resizeMode="contain"
                   />
@@ -216,10 +213,10 @@ const HomeScreen = ({ navigation, route }: TabsStackScreenProps<"Home">) => {
                 <TouchableOpacity
                   key={index}
                   style={{ alignItems: "center", margin: 5 }}
-                  onPress={() => navigation.navigate("ProductDetails", item)} // Thêm hàm onPress để điều hướng
+                  onPress={() => navigation.navigate("ProductDetails", item)} // Fixed navigation
                 >
                   <Image
-                    source={{ uri: item.images[0] }} // Hiển thị hình ảnh sản phẩm nổi bật
+                    source={{ uri: item.images[0] }}
                     style={{ width: 100, height: 100, borderRadius: 10 }}
                     resizeMode="contain"
                   />
