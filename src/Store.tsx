@@ -7,19 +7,21 @@ const persistConfig = {
   key: 'root',
   storage,
   version: 1,
+  whitelist: ["cart"]
 };
 
 const persistedReducer = persistReducer(persistConfig, CartReducer);
 
 export const store = configureStore({
   reducer: {
-    cart: persistedReducer,
+      cart: persistedReducer,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware({
-    serializableCheck: {
-      ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-    },
-  }),
+  middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+          serializableCheck: {
+              ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+          },
+      }),
 });
 
 export const persistor = persistStore(store);

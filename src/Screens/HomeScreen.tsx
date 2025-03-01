@@ -12,8 +12,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { TabsStackScreenProps } from "../Navigation/TabsNavigation"; // Assuming this imports TabsStackParams
+import { ProductCard } from "../Components/HomeSreenComponents/ProductCard";
 
-import { RootStackParams } from "../Navigation/RootNavigation"; // Adjust path as needed
 import { HeadersComponent } from "../Components/HeaderComponents/HeaderComponent";
 import ImageSlider from "../Components/HomeSreenComponents/ImageSlider";
 import { ProductListParams } from "../TypesCheck/HomeProps";
@@ -24,14 +24,15 @@ import {
   fetchFeaturedProducts,
 } from "../MiddleWares/HomeMiddleWare";
 import { useSelector } from "react-redux"; // Fixed typo
-import { CartState } from "../TypesCheck/ProductCartTypes";
+//import { CartState } from "../TypesCheck/ProductCartTypes";
+import { RootState } from "../Store";
 import DisplayMessage from "../Components/HeaderComponents/DisplayMessage";
 
 // Combine navigation props for both stacks
 type HomeScreenProps = TabsStackScreenProps<"Home"> & TabsStackScreenProps<"Home">;
 
 const HomeScreen = ({ navigation }: HomeScreenProps) => {
-  const cart = useSelector((state: CartState) => state.cart.cart);
+  const cart = useSelector((state: RootState) => state.cart.cart);
 
   const gotoCartScreen = () => {
     if (cart.length === 0) {
@@ -41,7 +42,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
         setDisplayMessage(false);
       }, 3000);
     } else {
-      navigation.navigate("Cart"); // Navigate to root stack's "Cart"
+      navigation.navigate("Home"); // Navigate to root stack's "Cart"
     }
   };
 
@@ -51,7 +52,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
       navigation.goBack();
     } else {
       console.log("Không thể quay lại, ở lại trang Home.");
-      // No navigation needed since we're already on Home
+      navigation.navigate('Home');
     }
   };
 

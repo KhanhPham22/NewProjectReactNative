@@ -1,12 +1,15 @@
-export interface ProductListParams{
-    _id:string;
+export interface ProductListParams {
+    _id: string;
     images: [string];
     name: string;
-    price: number;
-    quantity?: number;
-    inStock?: boolean
-    isFeatured?: boolean
     category?: string;
+    price: number
+   
+    inStock?: boolean;
+    color?: string;
+    size?: string;
+    description?: string;
+    quantity?: number
 }
 
 export interface CartItem {
