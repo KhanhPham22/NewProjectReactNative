@@ -7,6 +7,7 @@ import OnboardingScreen from "../Screens/OnboardingScreen";
 import TabsNavigator, { TabsStackParams } from "./TabsNavigation";
 import { NavigatorScreenParams } from "@react-navigation/native";
 import ProductDetails from "../Screens/ProductDetails";
+import UserLogin from "../Screens/UserLogin";
 
 export type RootStackParams = {
   OnboardingScreen: undefined;
@@ -37,7 +38,9 @@ export type RootStackParams = {
     size?: string;
     
     quantity?: number;
-  }
+  };
+
+  UserLogin: undefined; // Giữ undefined vì không cần params
 };
 
 const RootStack = createNativeStackNavigator<RootStackParams>();
@@ -63,6 +66,12 @@ const RootNavigator = () => {
       options={{headerShown: false}}>
 
       </RootStack.Screen>
+
+      { <RootStack.Screen
+        name="UserLogin"
+        component={UserLogin}
+        options={{ headerShown: false }}
+      />       }
     </RootStack.Navigator>
   );
 };

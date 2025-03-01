@@ -1,12 +1,8 @@
-import React, {useEffect,useRef, useState} from "react";
-import { Dimensions, Animated, StyleSheet, Easing, TextInput } from "react-native";
+// Components/UserDataForm.ts
+import { LoginRequest, UserParams } from "../../../apiMongoDB/dto/User";
 
-const width = (Dimensions.get("screen").width *2) /3 +50;
+export type UserFormData = UserParams & {
+    confirmPassword?: string;
+};
 
-interface IUserForm {
-    label : string;
-    duration?:number;
-    labelColor?: string;
-    text?: string;
-    updateText?: (text: string) => void;
-}
+export type LoginFormData = LoginRequest;

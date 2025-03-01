@@ -16,7 +16,7 @@ interface IProdByCatProps {
 export const fetchCategories = async ({ setGetCategory }: ICatProps) => {
   try {
     const response = await axios.get(
-      "http://10.106.22.244:8000/category/getAllCategory"
+      "http://192.168.29.100:8000/category/getAllCategory"
     );
     console.log("API Response:", response.data);
 
@@ -24,7 +24,7 @@ export const fetchCategories = async ({ setGetCategory }: ICatProps) => {
       const fixedData = response.data.map((item) => ({
         ...item,
         images: item.images.map((img: string) =>
-          img.replace("http://localhost", "http://10.106.22.244")
+          img.replace("http://localhost", "http://192.168.29.100")
         ),
       }));
       setGetCategory(fixedData);
@@ -55,14 +55,14 @@ export const fetchProductsByCatID = async ({
 }: IProdByCatProps) => {
   try {
     const response: FetchProductsParam = await axios.get(
-      `http://10.106.22.244:8000/product/getProductByCatID/${catID}`
+      `http://192.168.29.100:8000/product/getProductByCatID/${catID}`
     );
     console.log("API Response:", response.data);
     if (Array.isArray(response.data)) {
       const fixedData = response.data.map((item) => ({
         ...item,
         images: item.images.map((img: string) =>
-          img.replace("http://localhost", "http://10.106.22.244")
+          img.replace("http://localhost", "http://192.168.29.100")
         ),
       }));
       setGetProductsByCatID(fixedData);
@@ -89,14 +89,14 @@ export const fetchFeaturedProducts = async ({
 }) => {
   try {
     const response: FetchProductsParam = await axios.get(
-      `http://10.106.22.244:8000/product/getFeaturedProducts/${catID}` // Include catID in the URL
+      `http://192.168.29.100:8000/product/getFeaturedProducts/${catID}` // Include catID in the URL
     );
     console.log("API Response:", response.data); // Log the response data
     if (Array.isArray(response.data)) {
       const fixedData = response.data.map((item) => ({
         ...item,
         images: item.images.map((img: string) =>
-          img.replace("http://localhost", "http://10.106.22.244")
+          img.replace("http://localhost", "http://192.168.29.100")
         ),
       }));
       setGetFeaturedProducts(fixedData);

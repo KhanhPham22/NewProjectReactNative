@@ -4,10 +4,13 @@ import { Entypo, AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { GoBack } from "./GoBackButton";
 
 interface IHeaderParams {
+  pageTitle?: string;
   goToPrevios?: () => void;
   search?: () => void;
   cartLength?: number;
   gotoCartScreen?: () => void;
+  searchInput?: string; // Make optional
+  setSearchInput?: (text: string) => void; // Make optional
 }
 
 export const HeadersComponent = ({
@@ -15,8 +18,10 @@ export const HeadersComponent = ({
   search,
   cartLength,
   gotoCartScreen,
+  searchInput,
+  setSearchInput,
 }: IHeaderParams) => {
-  const [searchInput, setSearchInput] = useState("");
+  
   return (
     <View style={styles.headerContainer}>
       <GoBack onPress={goToPrevios} />
