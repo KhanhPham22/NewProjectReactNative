@@ -9,22 +9,22 @@ import CartScreen from "../Screens/CartScreen";
 import PaymentScreen from "../Screens/PaymentScreen";
 import ProfileScreen from "../Screens/ProfileScreen";
 import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
-
+import { ProductListParams } from "../TypesCheck/ProductCartTypes";
 export type TabsStackParams = {
   Home: undefined;
   Cart: undefined;
-  Payment: undefined;
+  Payment: { cartItems: ProductListParams[] } | undefined;
   Profile: undefined;
   cart: {
     _id?: string;
     images?: string[];
-    name: string;
-    price: number;
-   
-    color?: string;
-    size?: string;
-    
+    name?: string;
+    price?: number;
+    oldPrice?: number;
+    description?: string;
+    instock?: boolean;
     quantity?: number;
+    
   }
 };
 

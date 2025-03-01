@@ -1,4 +1,4 @@
-import { View, Text, Platform, FlatList, Pressable } from "react-native";
+import { View, Text, Platform, FlatList, Pressable, Image } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TabsStackScreenProps } from "../Navigation/TabsNavigation";
@@ -6,7 +6,7 @@ import { HeadersComponent } from "../Components/HeaderComponents/HeaderComponent
 import { useDispatch, useSelector } from "react-redux";
 import DisplayMessage from "../Components/HeaderComponents/DisplayMessage";
 import { CartState, ProductListParams } from "../TypesCheck/ProductCartTypes";
-import { addToCart, increaseQuantity, decreaseQuantity, removeFromCart } from "../Redux/CartReducer";
+import { addToCart, increaseQuantity, decreaseQuantity, removeFromCart, clearCart } from "../Redux/CartReducer"; // Added clearCart import
 
 const CartScreen = ({ navigation }: TabsStackScreenProps<"Cart">) => {
     const cart = useSelector((state: CartState) => state.cart?.cart ?? []);
@@ -20,7 +20,7 @@ const CartScreen = ({ navigation }: TabsStackScreenProps<"Cart">) => {
             setDisplayMessage(true);
             setTimeout(() => setDisplayMessage(false), 3000);
         } else {
-            navigation.navigate("Home");
+            navigation.navigate("Home"); // Consider if this should go elsewhere
         }
     };
 
@@ -48,18 +48,44 @@ const CartScreen = ({ navigation }: TabsStackScreenProps<"Cart">) => {
         setTimeout(() => setDisplayMessage(false), 3000);
     };
 
+    const handleCheckout = () => {
+        if (cart.length === 0) {
+            setMessage("Cart is empty. Add products to checkout.");
+            setDisplayMessage(true);
+            setTimeout(() => setDisplayMessage(false), 3000);
+        } else {
+            // Navigate to PaymentScreen with current cart items
+            navigation.navigate("Payment", { cartItems: cart });
+            // Reset the cart after navigation
+            dispatch(clearCart());
+            // Optional: Show a success message
+            setMessage("Checkout successful. Cart has been cleared.");
+            setDisplayMessage(true);
+            setTimeout(() => setDisplayMessage(false), 3000);
+        }
+    };
+
     const renderCartItem = ({ item }: { item: ProductListParams }) => {
         if (!item || !item._id) return null;
         return (
             <View style={{ 
                 flexDirection: "row", 
-                justifyContent: "space-between", 
                 alignItems: "center", 
                 padding: 10, 
                 backgroundColor: "#333", 
                 marginVertical: 5, 
                 borderRadius: 8 
             }}>
+                <Image 
+                    source={{ uri: item.images?.[0] || "https://via.placeholder.com/50" }}
+                    style={{ 
+                        width: 50, 
+                        height: 50, 
+                        borderRadius: 5, 
+                        marginRight: 10 
+                    }}
+                    resizeMode="contain"
+                />
                 <View style={{ flex: 1 }}>
                     <Text style={{ color: "white", fontSize: 16, fontWeight: "bold" }}>{item.name}</Text>
                     <Text style={{ color: "white", fontSize: 14 }}>Price: ${item.price}</Text>
@@ -104,12 +130,32 @@ const CartScreen = ({ navigation }: TabsStackScreenProps<"Cart">) => {
 
             <View style={{ flex: 1, paddingHorizontal: 10 }}>
                 {Array.isArray(cart) && cart.length > 0 ? (
-                    <FlatList
-                        data={cart}
-                        renderItem={renderCartItem}
-                        keyExtractor={(item) => item?._id ?? Math.random().toString()}
-                        showsVerticalScrollIndicator={false}
-                    />
+                    <>
+                        <FlatList
+                            data={cart}
+                            renderItem={renderCartItem}
+                            keyExtractor={(item) => item?._id ?? Math.random().toString()}
+                            showsVerticalScrollIndicator={false}
+                            contentContainerStyle={{ paddingBottom: 80 }} // Space for checkout button
+                        />
+                        <Pressable
+                            onPress={handleCheckout}
+                            style={{
+                                position: "absolute",
+                                bottom: 20,
+                                left: 10,
+                                right: 10,
+                                backgroundColor: "#FFD700",
+                                padding: 15,
+                                borderRadius: 10,
+                                alignItems: "center",
+                            }}
+                        >
+                            <Text style={{ color: "black", fontSize: 18, fontWeight: "bold" }}>
+                                Checkout ({cart.length} items)
+                            </Text>
+                        </Pressable>
+                    </>
                 ) : (
                     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
                         <Text style={{ color: "white", fontSize: 18 }}>Your cart is empty. Add some products!</Text>

@@ -11,9 +11,8 @@ import {
 import React, { useCallback, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
-import { TabsStackScreenProps } from "../Navigation/TabsNavigation"; // Assuming this imports TabsStackParams
+import { TabsStackScreenProps } from "../Navigation/TabsNavigation";
 import { ProductCard } from "../Components/HomeSreenComponents/ProductCard";
-
 import { HeadersComponent } from "../Components/HeaderComponents/HeaderComponent";
 import ImageSlider from "../Components/HomeSreenComponents/ImageSlider";
 import { ProductListParams } from "../TypesCheck/HomeProps";
@@ -23,16 +22,19 @@ import {
   fetchProductsByCatID,
   fetchFeaturedProducts,
 } from "../MiddleWares/HomeMiddleWare";
-import { useSelector } from "react-redux"; // Fixed typo
-//import { CartState } from "../TypesCheck/ProductCartTypes";
+import { useSelector } from "react-redux";
 import { RootState } from "../Store";
 import DisplayMessage from "../Components/HeaderComponents/DisplayMessage";
 
-// Combine navigation props for both stacks
 type HomeScreenProps = TabsStackScreenProps<"Home"> & TabsStackScreenProps<"Home">;
 
 const HomeScreen = ({ navigation }: HomeScreenProps) => {
   const cart = useSelector((state: RootState) => state.cart.cart);
+
+  // Add search state
+  const [searchInput, setSearchInput] = useState("");
+  const [filteredProducts, setFilteredProducts] = useState<ProductListParams[]>([]);
+  const [filteredFeaturedProducts, setFilteredFeaturedProducts] = useState<ProductListParams[]>([]);
 
   const gotoCartScreen = () => {
     if (cart.length === 0) {
@@ -42,7 +44,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
         setDisplayMessage(false);
       }, 3000);
     } else {
-      navigation.navigate("Home"); // Navigate to root stack's "Cart"
+      navigation.navigate("Home"); // Consider changing to "Cart" if that's the correct route
     }
   };
 
@@ -70,6 +72,23 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
   const [getProductByCatID, setGetProductsByCatID] = useState<ProductListParams[]>([]);
   const [getFeaturedProducts, setGetFeaturedProducts] = useState<ProductListParams[]>([]);
 
+  // Search handler
+  const handleSearch = () => {
+    if (searchInput.trim() === "") {
+      setFilteredProducts(getProductByCatID);
+      setFilteredFeaturedProducts(getFeaturedProducts);
+    } else {
+      const filtered = getProductByCatID.filter((product) =>
+        product.name.toLowerCase().includes(searchInput.toLowerCase())
+      );
+      const filteredFeatured = getFeaturedProducts.filter((product) =>
+        product.name.toLowerCase().includes(searchInput.toLowerCase())
+      );
+      setFilteredProducts(filtered);
+      setFilteredFeaturedProducts(filteredFeatured);
+    }
+  };
+
   useFocusEffect(
     useCallback(() => {
       fetchCategories({ setGetCategory });
@@ -79,6 +98,13 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
       }
     }, [activeCat])
   );
+
+  // Update filtered products when source data changes
+  useEffect(() => {
+    setFilteredProducts(getProductByCatID);
+    setFilteredFeaturedProducts(getFeaturedProducts);
+    handleSearch(); // Re-apply search filter when products update
+  }, [getProductByCatID, getFeaturedProducts]);
 
   return (
     <SafeAreaView
@@ -94,7 +120,17 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
           visible={() => setDisplayMessage(!displayMessage)}
         />
       )}
-      <HeadersComponent gotoCartScreen={gotoCartScreen} />
+      <HeadersComponent
+        gotoCartScreen={gotoCartScreen}
+        goToPrevios={goToPreviousScreen}
+        cartLength={cart.length}
+        search={handleSearch}
+        searchInput={searchInput}
+        setSearchInput={(text) => {
+          setSearchInput(text);
+          handleSearch(); // Trigger search on text change
+        }}
+      />
 
       {/* Slider */}
       <View style={{ height: 200 }}>
@@ -173,8 +209,8 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
           }}
         >
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {getProductByCatID.length > 0 ? (
-              getProductByCatID.map((item, index) => (
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((item, index) => (
                 <View key={index} style={{ alignItems: "center", margin: 5 }}>
                   <Image
                     source={{ uri: item.images[0] }}
@@ -209,12 +245,12 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
             Featured Products
           </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {getFeaturedProducts.length > 0 ? (
-              getFeaturedProducts.map((item, index) => (
+            {filteredFeaturedProducts.length > 0 ? (
+              filteredFeaturedProducts.map((item, index) => (
                 <TouchableOpacity
                   key={index}
                   style={{ alignItems: "center", margin: 5 }}
-                  onPress={() => navigation.navigate("ProductDetails", item)} // Fixed navigation
+                  onPress={() => navigation.navigate("ProductDetails", item)}
                 >
                   <Image
                     source={{ uri: item.images[0] }}

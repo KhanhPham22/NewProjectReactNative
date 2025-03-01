@@ -1,5 +1,5 @@
 import { View, Image, Text, Platform, ScrollView, Dimensions, Pressable, SafeAreaView, ImageBackground } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react'; // Added useState import
 import { RootStackScreenProps } from '../Navigation/RootNavigation';
 import { AntDesign, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { HeadersComponent } from '../Components/HeaderComponents/HeaderComponent';
@@ -14,8 +14,9 @@ const ProductDetails = ({ navigation, route }: RootStackScreenProps<"ProductDeta
 
   const cart = useSelector((state: { cart: CartState }) => state.cart.cart.cart || []);
   const dispatch = useDispatch();
-  const [message, setMessage] = React.useState("");
-  const [displayMessage, setDisplayMessage] = React.useState<boolean>(false);
+  const [message, setMessage] = useState(""); // Changed to useState
+  const [displayMessage, setDisplayMessage] = useState<boolean>(false);
+  const [isLiked, setIsLiked] = useState(false); // New state for heart toggle
 
   const gotoCartScreen = () => {
     if (cart.length === 0) {
@@ -66,7 +67,10 @@ const ProductDetails = ({ navigation, route }: RootStackScreenProps<"ProductDeta
     }
   };
 
-  
+  // Toggle heart icon
+  const toggleLike = () => {
+    setIsLiked((prev) => !prev);
+  };
 
   const truncateDescription = (text: string | undefined, maxLength: number = 100) => {
     if (!text) return "No description available";
@@ -96,9 +100,17 @@ const ProductDetails = ({ navigation, route }: RootStackScreenProps<"ProductDeta
           <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
             {images?.[0] && <Image style={{ width: 300, height: 250, resizeMode: "contain" }} source={{ uri: images[0] }} />}
           </View>
-          <View style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: "#E0E0E0", flexDirection: "row", justifyContent: "center", alignItems: "center", position: "absolute", bottom: 10, right: 10 }}>
-            <AntDesign style={{ paddingLeft: 0, paddingTop: 2 }} name="heart" size={25} color="grey" />
-          </View>
+          {/* Heart Icon with Pressable */}
+          <Pressable
+            onPress={toggleLike}
+            style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: "#E0E0E0", flexDirection: "row", justifyContent: "center", alignItems: "center", position: "absolute", bottom: 10, right: 10 }}
+          >
+            <AntDesign
+              name={isLiked ? "heart" : "hearto"} // Switch between filled and outlined heart
+              size={25}
+              color={isLiked ? "red" : "grey"} // Red when liked, grey when not
+            />
+          </Pressable>
         </ImageBackground>
         <View style={{ backgroundColor: "white", borderColor: "purple", borderWidth: 2, margin: 10, padding: 10, borderRadius: 10 }}>
           <Text style={{ fontSize: 20, fontWeight: "bold", color: "purple" }}>{name ?? "No Name"}</Text>
