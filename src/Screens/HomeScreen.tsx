@@ -35,6 +35,27 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
   const [searchInput, setSearchInput] = useState("");
   const [filteredProducts, setFilteredProducts] = useState<ProductListParams[]>([]);
   const [filteredFeaturedProducts, setFilteredFeaturedProducts] = useState<ProductListParams[]>([]);
+  const handleSortLowToHigh = () => {
+    const sortedProducts = [...filteredProducts].sort((a, b) => 
+      (a.price || 0) - (b.price || 0)
+    );
+    const sortedFeatured = [...filteredFeaturedProducts].sort((a, b) => 
+      (a.price || 0) - (b.price || 0)
+    );
+    setFilteredProducts(sortedProducts);
+    setFilteredFeaturedProducts(sortedFeatured);
+  };
+
+  const handleSortHighToLow = () => {
+    const sortedProducts = [...filteredProducts].sort((a, b) => 
+      (b.price || 0) - (a.price || 0)
+    );
+    const sortedFeatured = [...filteredFeaturedProducts].sort((a, b) => 
+      (b.price || 0) - (a.price || 0)
+    );
+    setFilteredProducts(sortedProducts);
+    setFilteredFeaturedProducts(sortedFeatured);
+  };
 
   const gotoCartScreen = () => {
     if (cart.length === 0) {
@@ -130,6 +151,8 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
           setSearchInput(text);
           handleSearch(); // Trigger search on text change
         }}
+        onSortLowToHigh={handleSortLowToHigh}
+        onSortHighToLow={handleSortHighToLow}
       />
 
       {/* Slider */}

@@ -11,6 +11,8 @@ interface IHeaderParams {
   gotoCartScreen?: () => void;
   searchInput?: string; // Make optional
   setSearchInput?: (text: string) => void; // Make optional
+  onSortLowToHigh?: () => void;
+  onSortHighToLow?: () => void;
 }
 
 export const HeadersComponent = ({
@@ -20,6 +22,8 @@ export const HeadersComponent = ({
   gotoCartScreen,
   searchInput,
   setSearchInput,
+  onSortLowToHigh,
+  onSortHighToLow,
 }: IHeaderParams) => {
   
   return (
@@ -34,6 +38,17 @@ export const HeadersComponent = ({
           style={styles.searchInput}
         />
       </Pressable>
+      {/* Add sorting buttons */}
+      <View style={styles.sortContainer}>
+        <Pressable onPress={onSortLowToHigh} style={styles.sortButton}>
+          <Entypo name="arrow-up" size={20} color="white" />
+          <Text style={styles.sortText}>Low</Text>
+        </Pressable>
+        <Pressable onPress={onSortHighToLow} style={styles.sortButton}>
+          <Entypo name="arrow-down" size={20} color="white" />
+          <Text style={styles.sortText}>High</Text>
+        </Pressable>
+      </View>
       <Pressable onPress={gotoCartScreen}>
         <View style={styles.cartNum}>
           <Text style={styles.cartNumText}>{cartLength}</Text>
@@ -70,6 +85,22 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     height: "100%",
+  },
+  sortContainer: {
+    flexDirection: 'row',
+    gap: 5,
+    marginHorizontal: 5,
+  },
+  sortButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#333',
+    padding: 5,
+    borderRadius: 5,
+  },
+  sortText: {
+    color: 'white',
+    marginLeft: 3,
   },
   cartNum: {
     position: "absolute",

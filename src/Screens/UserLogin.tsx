@@ -42,7 +42,7 @@ const UserLogin = ({ navigation }: RootStackScreenProps<'UserLogin'>) => {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('http://192.168.29.100:8000/user/login', {
+      const response = await fetch('http://192.168.29.101:8000/user/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -72,9 +72,10 @@ const UserLogin = ({ navigation }: RootStackScreenProps<'UserLogin'>) => {
       Alert.alert('Error', 'Passwords do not match');
       return;
     }
-
+  
     try {
-      const response = await fetch('http://192.168.1.17:9000/users/register', {
+      const BASE_URL = 'http://192.168.29.101:8000'; // Use 'http://10.0.2.2:8000' for Android Emulator
+      const response = await fetch(`${BASE_URL}/user/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -86,9 +87,28 @@ const UserLogin = ({ navigation }: RootStackScreenProps<'UserLogin'>) => {
           mobileNo: formData.mobileNo,
         }),
       });
-
-      const data = await response.json();
-
+  
+      // Log the full response for debugging
+      console.log('Response status:', response.status);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+  
+      // Read the response as text first to inspect it
+      const text = await response.text();
+      console.log('Raw response:', text);
+  
+      // Try to parse as JSON, but handle if it’s not JSON (e.g., HTML error page)
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (jsonError) {
+        console.error('Failed to parse JSON:', jsonError);
+        Alert.alert(
+          'Server Error',
+          'The server returned an invalid response (HTML instead of JSON). Check server logs or configuration.'
+        );
+        return;
+      }
+  
       if (response.ok) {
         Alert.alert('Success', 'Registration successful. Please login.');
         setIsLogin(true);
@@ -100,13 +120,17 @@ const UserLogin = ({ navigation }: RootStackScreenProps<'UserLogin'>) => {
           mobileNo: '',
         });
       } else {
-        Alert.alert('Error', data.error || 'Registration failed');
+        console.log('Server response data:', data); // Log server response data
+        Alert.alert('Error', data.error || 'Registration failed. Check server response.');
       }
     } catch (error) {
-      Alert.alert('Error', 'Network error. Please try again.');
+      console.error('Network error during registration:', error); // Detailed error logging
+      Alert.alert(
+        'Network Error',
+        'Unable to connect to the server. Verify network and server status.'
+      );
     }
   };
-
   const handleAddressSubmit = () => {
     Alert.alert(
       'Address Submitted',
